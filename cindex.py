@@ -86,14 +86,22 @@ class _CindexListThread(threading.Thread):
     super(_CindexListThread, self).__init__()
     self._listener = listener
     self._path_cindex = path_cindex
-    self._index_filename = None
+    self._index_filename = os.path.abspath(index_filename)
 
   def run(self):
     try:
+      self._check_index_file()
       self._start_indexing()
       self._listener.on_finished()
     except Exception as e:
       self._listener.on_finished(err=e)
+
+  def _check_index_file(self):
+    if not self._index_filename:
+      return
+    if not os.path.isfile(self._index_filename):
+      raise Exception(
+          'The index file, {}, does not exist'.format(self._index_filename))
 
   def _get_proc(self, cmd):
     env = os.environ.copy()
