@@ -1,0 +1,8 @@
+// This file is not meant for editing. It will be overwritten.
+// Save your customizations to Packages/User/YetAnotherCodeSearch.sublime-settings instead.
+{
+  // path to cindex executable
+  "path_cindex": "cindex",
+  // path to csearch executable
+  "path_csearch": "csearch"
+}
