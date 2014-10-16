@@ -116,7 +116,9 @@ class _CindexListThread(threading.Thread):
     super(_CindexListThread, self).__init__()
     self._listener = listener
     self._path_cindex = path_cindex
-    self._index_filename = os.path.abspath(index_filename)
+    self._index_filename = None
+    if index_filename:
+      self._index_filename = os.path.abspath(index_filename)
     self._paths_to_index = []
     if paths_to_index:
       self._paths_to_index = list(map(os.path.abspath, paths_to_index))
