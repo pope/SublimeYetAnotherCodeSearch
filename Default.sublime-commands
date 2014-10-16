@@ -6,5 +6,12 @@
   {
     "caption": "Code Search Index",
     "command": "cindex"
+  },
+  {
+    "caption": "Code Search Index Project",
+    "command": "cindex",
+    "args": {
+      "index_project": true
+    }
   }
 ]
