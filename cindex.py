@@ -2,9 +2,14 @@ import sublime, sublime_plugin
 import os
 import os.path
 import functools
+import re
 import subprocess
 import threading
 import time
+
+# Matches a verbose file name line, like:
+#     2014/10/11 19:26:32 3556 1018 file.name
+_FILE_LINE_RE = re.compile(r'\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \d+ \d+ .+')
 
 
 class CindexListener(object):
@@ -161,9 +166,8 @@ class _CindexListThread(threading.Thread):
     start = time.time()
     count = 0
     for line in iter(proc.stdout.readline, b''):
-      # TODO(pope): Only count the lines that are ACTUALLY for files. This is a
-      # little too loose, but good for now.
-      count += 1
+      if _FILE_LINE_RE.match(line.decode('utf-8')):
+        count += 1
       # Call the listener every so often with an update on what was processed.
       tick = time.time()
       if tick - start > .1:
