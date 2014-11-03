@@ -261,6 +261,11 @@ if __name__ == '__main__':
   test('Quoted String',
        r'"Hello, \"World\"" printf',
        Search(query=[r'"Hello, \"World\""', 'printf']))
+  # TODO(pope): Make this give a warning. At least this proves we don't loop
+  # infinitely for this value.
+  test('Quoted String without Closing Quote',
+       r'"Hello',
+       Search(query=['"Hello']))
   test('With File',
        r'"Hello, World" file:.*py$',
        Search(query=[r'"Hello, World"'], file='.*py$'))
