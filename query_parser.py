@@ -181,6 +181,27 @@ class Search(object):
     self.file = file
     self.case = case
 
+  def args(self):
+    """Prints out the command arguments for csearch.
+
+    Returns:
+      A list of command line arguments from the query.
+    Raises:
+      AttributeError: If there is no query for the command.
+    """
+    if not self.query:
+      raise AttributeError('No query to run')
+    args = []
+    if self.file:
+      args.extend(['-f', self.file])
+    if not self.case:
+      args.append('-i')
+    if len(self.query) == 1:
+      args.append(self.query[0])
+    else:
+      args.append('({0})'.format('|'.join(self.query)))
+    return args
+
   def __eq__(self, other):
     return (isinstance(other, self.__class__) and
             self.query == other.query and
@@ -244,37 +265,55 @@ def parse(str):
 
 
 if __name__ == '__main__':
-  def test(desc, str, expected):
+  def test_parse(desc, str, expected):
     actual = parse(str)
     assert actual == expected, \
            '{0}: Expected {1}. Got {2}'.format(desc, expected, actual)
 
-  test('Simple',
-       r'someVariableName',
-       Search(query=['someVariableName']))
-  test('Unicode',
-       r'Hello, 世界. Done',
-       Search(query=['Hello,', '世界.', 'Done']))
-  test('Regex',
-       r'some.*variable.*name',
-       Search(query=[r'some.*variable.*name']))
-  test('Quoted String',
-       r'"Hello, \"World\"" printf',
-       Search(query=[r'"Hello, \"World\""', 'printf']))
+  test_parse('Simple',
+             r'someVariableName',
+             Search(query=['someVariableName']))
+  test_parse('Unicode',
+             r'Hello, 世界. Done',
+             Search(query=['Hello,', '世界.', 'Done']))
+  test_parse('Regex',
+             r'some.*variable.*name',
+             Search(query=[r'some.*variable.*name']))
+  test_parse('Quoted String',
+             r'"Hello, \"World\"" printf',
+             Search(query=[r'"Hello, \"World\""', 'printf']))
   # TODO(pope): Make this give a warning. At least this proves we don't loop
   # infinitely for this value.
-  test('Quoted String without Closing Quote',
-       r'"Hello',
-       Search(query=['"Hello']))
-  test('With File',
-       r'"Hello, World" file:.*py$',
-       Search(query=[r'"Hello, World"'], file='.*py$'))
-  test('Case Insensitive',
-       r'someVariableName case:no',
-       Search(query=['someVariableName'], case=False))
-  test('Regex with space',
-       r'name\ *=\ *foo',
-       Search(query=[r'name\ *=\ *foo']))
-  test('Keyword looking value',
-       r'foo:bar',
-       Search(query=['foo:bar']))
+  test_parse('Quoted String without Closing Quote',
+             r'"Hello',
+             Search(query=['"Hello']))
+  test_parse('With File',
+             r'"Hello, World" file:.*py$',
+             Search(query=[r'"Hello, World"'], file='.*py$'))
+  test_parse('Case Insensitive',
+             r'someVariableName case:no',
+             Search(query=['someVariableName'], case=False))
+  test_parse('Regex with space',
+             r'name\ *=\ *foo',
+             Search(query=[r'name\ *=\ *foo']))
+  test_parse('Keyword looking value',
+             r'foo:bar',
+             Search(query=['foo:bar']))
+
+  def test_command(desc, query, expected):
+    actual = query.args()
+    assert actual == expected, \
+           '{0}: Expected {1}. Got {2}'.format(desc, expected, actual)
+
+  test_command('Simple',
+               Search(query=['hello']),
+               ['hello'])
+  test_command('With file',
+               Search(query=['hello'], file='.*py$'),
+               ['-f', '.*py$', 'hello'])
+  test_command('With case insensitive',
+               Search(query=['hello'], case=False),
+               ['-i', 'hello'])
+  test_command('With multiple queries',
+               Search(query=['hello', 'world']),
+               ['(hello|world)'])
