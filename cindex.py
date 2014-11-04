@@ -1,7 +1,8 @@
 import sublime, sublime_plugin
+
+import functools
 import os
 import os.path
-import functools
 import re
 import subprocess
 import threading
@@ -12,7 +13,7 @@ import time
 _FILE_LINE_RE = re.compile(r'\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \d+ \d+ .+')
 
 
-class CindexListener(object):
+class _CindexListener(object):
   """A listener interface for handling callbacks while processing cindex."""
 
   def on_files_processed(self, count):
@@ -32,7 +33,7 @@ class CindexListener(object):
     pass
 
 
-class CindexCommand(sublime_plugin.WindowCommand, CindexListener):
+class CindexCommand(sublime_plugin.WindowCommand, _CindexListener):
   """A window command to run the cindex command."""
 
   def __init__(self, *args, **kwargs):
