@@ -2,11 +2,11 @@ import sublime, sublime_plugin
 
 import functools
 import os
-import os.path
 import subprocess
 import threading
 
 from YetAnotherCodeSearch import query_parser
+from YetAnotherCodeSearch import settings
 
 
 class _CsearchListener(object):
@@ -48,20 +48,13 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
 
   def _on_search(self, result):
     self._last_search = result
-    settings = sublime.load_settings('YetAnotherCodeSearch.sublime-settings')
-    path_csearch = settings.get("path_csearch")
-
-    project_data = self.window.project_data()
-    index_filename = None
-    if ('code_search' in project_data and
-        'csearchindex' in project_data['code_search']):
-      raw_index_filename = project_data['code_search']['csearchindex']
-      index_filename = os.path.expanduser(raw_index_filename)
-
-    _CsearchThread(query_parser.parse(result),
-                   self,
-                   path_csearch=path_csearch,
-                   index_filename=index_filename).start()
+    try:
+      s = settings.get_project_settings(self.window.project_data())
+      _CsearchThread(query_parser.parse(result), self,
+                     path_csearch=s.csearch_path,
+                     index_filename=s.index_filename).start()
+    except Exception as e:
+      self._finish(None, err=e)
 
   def _finish(self, output, err=None):
     self._is_running = False
@@ -86,22 +79,14 @@ class _CsearchThread(threading.Thread):
     self._search = search
     self._listener = listener
     self._path_csearch = path_csearch
-    self._index_filename = None
-    if index_filename:
-        self._index_filename = os.path.abspath(index_filename)
+    self._index_filename = index_filename
 
   def run(self):
     try:
-      self._check_index_file()
       output = self._do_search()
       self._listener.on_finished(output)
     except Exception as e:
       self._listener.on_finished(None, err=e)
-
-  def _check_index_file(self):
-    if self._index_filename and not os.path.isfile(self._index_filename):
-      raise Exception(
-          'The index file, {}, does not exist'.format(self._index_filename))
 
   def _do_search(self):
     env = os.environ.copy()

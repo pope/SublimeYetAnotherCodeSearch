@@ -2,11 +2,12 @@ import sublime, sublime_plugin
 
 import functools
 import os
-import os.path
 import re
 import subprocess
 import threading
 import time
+
+from YetAnotherCodeSearch import settings
 
 # Matches a verbose file name line, like:
 #     2014/10/11 19:26:32 3556 1018 file.name
@@ -58,29 +59,15 @@ class CindexCommand(sublime_plugin.WindowCommand, _CindexListener):
                                          'cindex (starting)')
     self._total_indexed = 0
 
-    settings = sublime.load_settings('YetAnotherCodeSearch.sublime-settings')
-    path_cindex = settings.get("path_cindex")
-
-    project_data = self.window.project_data()
-    index_filename = None
-    paths_to_index = []
-    if ('code_search' in project_data and
-        'csearchindex' in project_data['code_search']):
-      raw_index_filename = project_data['code_search']['csearchindex']
-      index_filename = os.path.expanduser(raw_index_filename)
-
-      if index_project:
-        paths_to_index = [os.path.expanduser(folder['path'])
-                          for folder in project_data['folders']]
-
-    elif index_project:
-      sublime.error_message('Cannot index project. Missing csearchindex file')
-      return
-
-    _CindexListThread(self,
-                      path_cindex=path_cindex,
-                      index_filename=index_filename,
-                      paths_to_index=paths_to_index).start()
+    try:
+      s = settings.get_project_settings(self.window.project_data(),
+                                        index_project_folders=index_project)
+      _CindexListThread(self,
+                        path_cindex=s.cindex_path,
+                        index_filename=s.index_filename,
+                        paths_to_index=s.paths_to_index).start()
+    except Exception as e:
+      self._finish(err=e)
 
   def _increment_total_indexed(self, count):
     if not self._is_running:
@@ -122,27 +109,15 @@ class _CindexListThread(threading.Thread):
     super(_CindexListThread, self).__init__()
     self._listener = listener
     self._path_cindex = path_cindex
-    self._index_filename = None
-    if index_filename:
-      self._index_filename = os.path.abspath(index_filename)
-    self._paths_to_index = []
-    if paths_to_index:
-      self._paths_to_index = list(map(os.path.abspath, paths_to_index))
+    self._index_filename = index_filename
+    self._paths_to_index = paths_to_index or []
 
   def run(self):
     try:
-      self._check_index_file()
       self._start_indexing()
       self._listener.on_finished()
     except Exception as e:
       self._listener.on_finished(err=e)
-
-  def _check_index_file(self):
-    if not self._index_filename or self._paths_to_index:
-      return
-    if not os.path.isfile(self._index_filename):
-      raise Exception(
-          'The index file, {}, does not exist'.format(self._index_filename))
 
   def _get_proc(self, cmd):
     env = os.environ.copy()
