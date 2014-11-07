@@ -1,0 +1,6 @@
+{
+    "tests_dir" : "tests",
+    "async": true,
+    "deferred": true,
+    "verbosity": 2
+}
