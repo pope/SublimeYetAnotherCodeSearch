@@ -20,6 +20,26 @@ class Settings(object):
     self.index_filename = index_filename
     self.paths_to_index = paths_to_index
 
+  def __eq__(self, other):
+    return (isinstance(other, self.__class__) and
+            self.csearch_path == other.csearch_path and
+            self.cindex_path == other.cindex_path and
+            self.index_filename == other.index_filename and
+            self.paths_to_index == other.paths_to_index)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
+
+  def __hash__(self):
+    # Not really needed, so a very dumb implementation to just be correct.
+    return 42
+
+  def __repr__(self):
+    s = ('{0}(csearch_path={1}; cindex_path={2}; index_filename={3};'
+         ' paths_to_index={4})')
+    return s.format(self.__class__, self.csearch_path, self.cindex_path,
+                    self.index_filename, self.paths_to_index)
+
 
 def get_project_settings(project_data, index_project_folders=False):
   """Gets the Code Search settings for the current project.
