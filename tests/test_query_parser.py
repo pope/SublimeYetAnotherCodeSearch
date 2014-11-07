@@ -2,6 +2,7 @@ import unittest
 
 from YetAnotherCodeSearch import query_parser
 
+
 class ParseTest(unittest.TestCase):
 
   def assertParse(self, search, query=None, file=None, case=True):

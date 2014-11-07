@@ -1,9 +1,9 @@
+import os.path
 import unittest
 from unittest.mock import patch
 
-import os.path
-
 from YetAnotherCodeSearch import settings
+
 
 class GetProjectSettingsTest(unittest.TestCase):
 

@@ -1,9 +1,9 @@
 import sublime
 
-import unittest
-
 import os
 import os.path
+import unittest
+
 
 class CommandTestCase(unittest.TestCase):
 

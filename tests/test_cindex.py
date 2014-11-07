@@ -1,9 +1,10 @@
 import sublime
 
-from YetAnotherCodeSearch.tests import CommandTestCase
-
 import os.path
 import time
+
+from YetAnotherCodeSearch.tests import CommandTestCase
+
 
 class CindexCommandTest(CommandTestCase):
 
