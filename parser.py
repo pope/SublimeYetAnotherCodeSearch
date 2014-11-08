@@ -5,7 +5,7 @@ import textwrap
 _EOF = '\0'
 
 
-def _text_state(lex):
+def _search_text_state(lex):
   """Lex state for handling text.
 
   Args:
@@ -20,7 +20,7 @@ def _text_state(lex):
   if n == _EOF:
     return None
   if n == '"':
-    return _quote_state
+    return _search_quote_state
 
   while True:
     lex.acceptRunIgnoring(string.whitespace + '\\:')
@@ -29,7 +29,7 @@ def _text_state(lex):
         lex.emit('flag')
         lex.next()  # advance the ':'.
         lex.ignore()  # drop it.
-        return _text_state
+        return _search_text_state
       else:
         lex.next()
     elif lex.accept('\\') and lex.accept(' '):
@@ -38,10 +38,10 @@ def _text_state(lex):
       break
   lex.emit('text')
 
-  return _text_state
+  return _search_text_state
 
 
-def _quote_state(lex):
+def _search_quote_state(lex):
   """Lex state for handling double quoted text.
 
   Args:
@@ -59,15 +59,15 @@ def _quote_state(lex):
     else:
       break
   lex.emit('quote')
-  return _text_state
+  return _search_text_state
 
 
 class _Lexer(object):
-  """The simple lexer for parsing search queries."""
+  """The simple lexer for tokenizing strings."""
 
-  def __init__(self, str):
-    self.str_ = str
-    self.start_state_ = _text_state
+  def __init__(self, str, start_state):
+    self._str = str
+    self._start_state = start_state
 
   def run(self):
     """Runs the lexer returning a list of tokens.
@@ -76,18 +76,18 @@ class _Lexer(object):
       A list of token tuples, where the first entry is the token type and the
       second value is the text value.
     """
-    self.start_= 0
-    self.pos_ = 0
-    self.width_ = 0
-    self.tokens_ = []
-    state = self.start_state_
+    self._start= 0
+    self._pos = 0
+    self._width = 0
+    self._tokens = []
+    state = self._start_state
     while state is not None:
       state = state(self)
-    return self.tokens_
+    return self._tokens
 
   def curstr(self):
     """The string as it's been parsed before being emitted."""
-    return self.str_[self.start_:self.pos_]
+    return self._str[self._start:self._pos]
 
   def emit(self, tokType):
     """Emit appends the current string to the list of tokens.
@@ -95,12 +95,12 @@ class _Lexer(object):
     Args:
       tokType: The token type describing the current string.
     """
-    self.tokens_.append((tokType, self.curstr()))
-    self.start_= self.pos_
+    self._tokens.append((tokType, self.curstr()))
+    self._start= self._pos
 
   def ignore(self):
     """Ignores the current string."""
-    self.start_= self.pos_
+    self._start= self._pos
 
   def next(self):
     """Moves the cursor to the next character in the string.
@@ -108,17 +108,17 @@ class _Lexer(object):
     Returns:
       The character that was just consumed or _EOF if there's nothing left.
     """
-    if self.pos_ >= len(self.str_):
-      self.width_ = 0
+    if self._pos >= len(self._str):
+      self._width = 0
       return _EOF
-    c = self.str_[self.pos_]
-    self.width_ = 1
-    self.pos_ += self.width_
+    c = self._str[self._pos]
+    self._width = 1
+    self._pos += self._width
     return c
 
   def backup(self):
     """Undo one next() call."""
-    self.pos_ -= self.width_
+    self._pos -= self._width
 
   def peek(self):
     """Returns the next character in the string."""
@@ -222,7 +222,7 @@ class Search(object):
                                                        self.case)
 
 
-def parse(str):
+def parse_query(str):
   """Parse a search string into a Search object.
 
   Search example queries include:
@@ -233,12 +233,12 @@ def parse(str):
     myclass case:no
 
   Args:
-    str: The search string to parse.
+    str: The search query string to parse.
   Returns:
     A Search object representing the parsed string.
   """
   res = Search()
-  lex = _Lexer(str)
+  lex = _Lexer(str, _search_text_state)
   tokens = iter(lex.run())
   try:
     while True:

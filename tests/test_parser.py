@@ -1,13 +1,13 @@
 import unittest
 
-from YetAnotherCodeSearch import query_parser
+from YetAnotherCodeSearch import parser
 
 
-class ParseTest(unittest.TestCase):
+class ParseQueryTest(unittest.TestCase):
 
   def assertParse(self, search, query=None, file=None, case=True):
-    expected = query_parser.Search(query=query, file=file, case=case)
-    actual = query_parser.parse(search)
+    expected = parser.Search(query=query, file=file, case=case)
+    actual = parser.parse_query(search)
     self.assertEquals(expected, actual)
 
   def test_parse_with_simple_query(self):
@@ -46,17 +46,17 @@ class ParseTest(unittest.TestCase):
 class SearchTest(unittest.TestCase):
 
   def test_args_simple(self):
-    self.assertEquals(query_parser.Search(query=['hello']).args(), ['hello'])
+    self.assertEquals(parser.Search(query=['hello']).args(), ['hello'])
 
   def test_args_with_file(self):
-    self.assertEquals(query_parser.Search(query=['hello'], file='.*py$').args(),
+    self.assertEquals(parser.Search(query=['hello'], file='.*py$').args(),
                       ['-f', '.*py$', 'hello'])
 
   def test_args_with_case_insensitive(self):
-    self.assertEquals(query_parser.Search(query=['hello'], case=False).args(),
+    self.assertEquals(parser.Search(query=['hello'], case=False).args(),
                       ['-i', 'hello'])
 
   def test_args_with_multiple_queries(self):
-    self.assertEquals(query_parser.Search(query=['hello', 'world']).args(),
+    self.assertEquals(parser.Search(query=['hello', 'world']).args(),
                       ['(hello|world)'])
 

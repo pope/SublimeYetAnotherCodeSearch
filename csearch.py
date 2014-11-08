@@ -5,7 +5,7 @@ import os
 import subprocess
 import threading
 
-from YetAnotherCodeSearch import query_parser
+from YetAnotherCodeSearch import parser
 from YetAnotherCodeSearch import settings
 
 
@@ -50,7 +50,7 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     self._last_search = result
     try:
       s = settings.get_project_settings(self.window.project_data())
-      _CsearchThread(query_parser.parse(result), self,
+      _CsearchThread(parser.parse_query(result), self,
                      path_csearch=s.csearch_path,
                      index_filename=s.index_filename).start()
     except Exception as e:
