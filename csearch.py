@@ -63,8 +63,15 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
       return
     if output is None:
       return
-    # TODO(pope): Parse this output
-    print(output)
+    try:
+      result = '\n\n'.join((str(f) for f in parser.parse_search_output(output)))
+      v = self.window.create_output_panel('YetAnotherCodeSearch')
+      v.run_command('erase_view')
+      v.run_command('append', {'characters': result})
+      v.set_syntax_file('Packages/Default/Find Results.hidden-tmLanguage')
+      self.window.run_command('show_panel', {'panel': 'output.YetAnotherCodeSearch'})
+    except Exception as err:
+      sublime.error_message(str(err))
 
   def on_finished(self, output, err=None):
     sublime.set_timeout(functools.partial(self._finish, output, err=err))

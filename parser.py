@@ -1,5 +1,6 @@
 import collections
 from itertools import zip_longest
+import math
 import string
 import textwrap
 
@@ -360,9 +361,20 @@ def parse_query(text):
   return res
 
 
-class SearchOutput(object):
+class FileResults(object):
+  """The parsed search output for a file.
+
+  Used to organize all of the matched lines for a particular file.
+
+  Attributes:
+    filename: The location of the file.
+    matches: A list of tuple pairs where the first item is the line number, and
+        the second value is the matched line.
+  """
 
   def __init__(self, filename, matches):
+    assert matches
+    assert filename
     self.filename = filename
     self.matches = matches
 
@@ -382,6 +394,21 @@ class SearchOutput(object):
     msg = '{0}(filename={1}; matches={2})'
     return msg.format(self.__class__, self.filename, self.matches)
 
+  def __str__(self):
+    line_tmpl = '{0: >5}: {1}'
+    res_matches = []
+    matches = iter(self.matches)
+    (linenum, line) = next(matches)
+    res_matches.append(line_tmpl.format(linenum, line))
+    prev_linenum = linenum
+    for (linenum, line) in matches:
+      if prev_linenum + 1 != linenum:
+        num_digits = int(math.log10(prev_linenum)) + 1
+        res_matches.append('{0: >5}'.format('.' * num_digits))
+      res_matches.append(line_tmpl.format(linenum, line))
+      prev_linenum = linenum
+    return '{0}:\n{1}'.format(self.filename, '\n'.join(res_matches))
+
 
 def parse_search_output(text):
   """Parse the output text from a search command.
@@ -396,7 +423,7 @@ def parse_search_output(text):
   Args:
     text: The search output string.
   Returns:
-    A list of SearchOutput objects.
+    A list of FileResults objects.
   Raises:
     Exception: If there was a problem parsing the output.
   """
@@ -415,12 +442,12 @@ def parse_search_output(text):
   cur_matches = [(linenum, line)]
   for (filename, linenum, line) in map(_line_parts, token_groups):
     if cur_filename != filename:
-      res.append(SearchOutput(cur_filename, cur_matches))
+      res.append(FileResults(cur_filename, cur_matches))
       cur_filename = filename
       cur_matches = [(linenum, line)]
     else:
       cur_matches.append((linenum, line))
-  res.append(SearchOutput(cur_filename, cur_matches))
+  res.append(FileResults(cur_filename, cur_matches))
   return res
 
 
