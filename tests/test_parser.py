@@ -1,4 +1,5 @@
 import unittest
+import textwrap
 
 from YetAnotherCodeSearch import parser
 
@@ -60,3 +61,36 @@ class SearchTest(unittest.TestCase):
     self.assertEquals(parser.Search(query=['hello', 'world']).args(),
                       ['(hello|world)'])
 
+
+class ParseSearchOutputTest(unittest.TestCase):
+
+  def test_parse(self):
+    output = textwrap.dedent("""\
+        a.txt:1:Too many cooks
+        a.txt:2:TOO MANY cooks
+        b.txt:34:How to cook
+    """)
+    expected = [
+        parser.SearchOutput('a.txt', [(1, 'Too many cooks'),
+                                      (2, 'TOO MANY cooks')]),
+        parser.SearchOutput('b.txt', [(34, 'How to cook')])
+    ]
+    actual = parser.parse_search_output(output)
+    self.assertEquals(expected, actual)
+
+  def test_parse_single_line(self):
+    expected = [parser.SearchOutput('a.txt', [(1, 'Too many cooks')])]
+    actual = parser.parse_search_output('a.txt:1:Too many cooks')
+    self.assertEquals(expected, actual)
+
+  def test_parse_with_no_results(self):
+    actual = parser.parse_search_output('')
+    self.assertEquals([], actual)
+
+  def test_parse_exception(self):
+    with self.assertRaises(parser._LexerException):
+      actual = parser.parse_search_output('I am a bad line.')
+
+  def test_parse_exception_with_bad_linenum(self):
+    with self.assertRaises(parser._LexerException):
+      actual = parser.parse_search_output('a.txt:12bleh:Match')
