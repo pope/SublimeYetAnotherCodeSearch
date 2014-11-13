@@ -1,0 +1,9 @@
+[
+  {
+    "keys": ["enter"],
+    "command": "code_search_results_go_to_file",
+    "context": [
+      { "key": "selector", "operator": "equal", "operand": "text.csearch" }
+    ]
+  }
+]
