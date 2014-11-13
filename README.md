@@ -6,7 +6,7 @@ projects where a normal Find is just too slow.
 
 ### Yet Another...?
 
-Yeah. There is [SublimeCodeSearch][]; however there is no LICENSE file so I
+Yeah. There is [SublimeCodeSearch][]; however, there is no LICENSE file so I
 couldn't make any modifications to the project. That said, this project will
 probably deviate enough from SublimeCodeSearch that it will be worth separating
 anyway. Some things worth highlighting:
@@ -68,7 +68,37 @@ indexing step as to pick up those edits for the next time you run a search.
 
 ### Searching
 
-TODO
+To run a search, open up the command pallet (*Tools > Command Palette...*) and
+look for *Code Search*. This will open up an input for you to enter your query.
+
+From there, enter a regex-based search query. Multiple queries are supported.
+Each term will be ORed together. For queries with spaces in them, you can either
+escape the spaces or wrap the query in quotes.
+
+Here are some examples:
+
+    some_obscure_method
+    my_method my_variable
+    "Hello, world"
+
+The `csearch` command also supports limiting the results to just files that
+match a regex as well as can be told to be case insensitive. Since Sublime
+doesn't allow you to set custom UI on the input bar, you can encode these
+properties into special keywords in the query -- namely `file:` and `case:`.
+
+    some.*variable.*name case:no
+    my_method file:\.py$
+    foo.*bar case:NO file:\.[ch]$
+
+Once you enter your query, the *Code Search Results* file view should come into
+focus. You can move to any matched line and then press the `enter` key and be
+taken to that file and that match. You can also invoke the Goto Symbol command
+(*Goto > Goto Symbol...*) to get a list of all of the files that match your
+query.
+
+## Development
+
+TODO. (talk about current development and testing)
 
 [ST]: https://www.sublimetext.com/
 [CS]: https://code.google.com/p/codesearch/
