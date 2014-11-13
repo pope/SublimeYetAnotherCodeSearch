@@ -291,11 +291,14 @@ class Search(object):
       args.extend(['-f', self.file])
     if not self.case:
       args.append('-i')
-    if len(self.query) == 1:
-      args.append(self.query[0])
-    else:
-      args.append('({0})'.format('|'.join(self.query)))
+    args.append(self.query_re())
     return args
+
+  def query_re(self):
+    if len(self.query) == 1:
+      return self.query[0]
+    else:
+      return '({0})'.format('|'.join(self.query))
 
   def __eq__(self, other):
     return (isinstance(other, self.__class__) and

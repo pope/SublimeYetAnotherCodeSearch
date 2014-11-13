@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
 
 import functools
+import operator
 import os
 import subprocess
 import threading
@@ -64,12 +65,43 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     if output is None:
       return
     try:
-      result = '\n\n'.join((str(f) for f in parser.parse_search_output(output)))
-      v = self.window.create_output_panel('YetAnotherCodeSearch')
-      v.run_command('erase_view')
-      v.run_command('append', {'characters': result})
-      v.set_syntax_file('Packages/Default/Find Results.hidden-tmLanguage')
-      self.window.run_command('show_panel', {'panel': 'output.YetAnotherCodeSearch'})
+      query = parser.parse_query(self._last_search)
+      result = 'Searching for "{0}"\n\n'.format(self._last_search)
+      if output:
+        matches = parser.parse_search_output(output)
+        result += '\n\n'.join((str(f) for f in matches))
+        num_files = len(matches)
+        num_matches = functools.reduce(operator.add,
+                                       (len(r.matches) for r in matches))
+        result += '\n\n{0} matches across {1} files'.format(num_matches,
+                                                            num_files)
+      else:
+        result += 'No matches found'
+
+      flags = 0
+      if not query.case:
+        flags = sublime.IGNORECASE
+
+      view = next((view for view in self.window.views()
+                  if view.name() == 'Code Search Results'), None)
+      if not view:
+        view = self.window.new_file()
+        view.set_name('Code Search Results')
+        view.set_scratch(True)
+        settings = view.settings()
+        settings.set('line_numbers', False)
+        settings.set('gutter', False)
+        settings.set('spell_check', False)
+        view.set_syntax_file('Packages/Default/Find Results.hidden-tmLanguage')
+      view.set_read_only(False)
+      view.run_command('erase_view')
+      view.run_command('append', {'characters': result})
+      reg = view.find_all(query.query_re(), flags)
+      reg = reg[1:]  # Skip the first match, it's the "title"
+      view.add_regions('YetAnotherCodeSearch', reg, 'text.find-in-files', '',
+                       sublime.HIDE_ON_MINIMAP | sublime.DRAW_NO_FILL)
+      view.set_read_only(True)
+      self.window.focus_view(view)
     except Exception as err:
       sublime.error_message(str(err))
 
