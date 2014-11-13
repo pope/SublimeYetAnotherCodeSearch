@@ -1,0 +1,21 @@
+# [PackageDev] target_format: plist, ext: hidden-tmLanguage
+---
+name: Code Search Results
+scopeName: text.csearch
+fileTypes: []
+uuid: 9a9f5624-0609-4c38-97b3-c5c6b4325c78
+
+patterns:
+- match: ^([^ ].*):$
+  captures:
+    '1': {name: entity.name.filename.csearch}
+
+- match: '^ +([0-9]+) '
+  captures:
+    '1': {name: constant.numeric.line-number.cearch}
+
+- match: '^ +([0-9]+):'
+  captures:
+    '1': {name: constant.numeric.line-number.match.csearch}
+
+...

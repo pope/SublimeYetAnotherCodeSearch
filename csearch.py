@@ -92,13 +92,14 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
         settings.set('line_numbers', False)
         settings.set('gutter', False)
         settings.set('spell_check', False)
-        view.set_syntax_file('Packages/Default/Find Results.hidden-tmLanguage')
+        view.set_syntax_file(('Packages/YetAnotherCodeSearch/'
+                              'Code Search Results.hidden-tmLanguage'))
       view.set_read_only(False)
       view.run_command('erase_view')
       view.run_command('append', {'characters': result})
       reg = view.find_all(query.query_re(), flags)
       reg = reg[1:]  # Skip the first match, it's the "title"
-      view.add_regions('YetAnotherCodeSearch', reg, 'text.find-in-files', '',
+      view.add_regions('YetAnotherCodeSearch', reg, 'text.csearch', '',
                        sublime.HIDE_ON_MINIMAP | sublime.DRAW_NO_FILL)
       view.set_read_only(True)
       self.window.focus_view(view)

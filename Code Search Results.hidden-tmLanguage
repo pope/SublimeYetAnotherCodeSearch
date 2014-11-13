@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array/>
+	<key>name</key>
+	<string>Code Search Results</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.filename.csearch</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^([^ ].*):$</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.line-number.cearch</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^ +([0-9]+) </string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.line-number.match.csearch</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^ +([0-9]+):</string>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>text.csearch</string>
+	<key>uuid</key>
+	<string>9a9f5624-0609-4c38-97b3-c5c6b4325c78</string>
+</dict>
+</plist>
