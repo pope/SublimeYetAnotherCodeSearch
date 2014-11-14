@@ -1,6 +1,7 @@
 # YetAnotherCodeSearch
 
 [![Analytics](https://ga-beacon.appspot.com/UA-280328-3/pope/SublimeYetAnotherCodeSearch/README)](https://github.com/igrigorik/ga-beacon)
+[![Build Status](https://travis-ci.org/pope/SublimeYetAnotherCodeSearch.svg?branch=master)](https://travis-ci.org/pope/SublimeYetAnotherCodeSearch)
 
 This is a plugin for [Sublime Text][ST] that works with [CodeSearch][CS] to
 provide fast searching in a large codebase. This is most useful for large
