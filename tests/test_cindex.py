@@ -1,6 +1,7 @@
 import sublime
 
 import os.path
+import shutil
 import time
 
 from YetAnotherCodeSearch.tests import CommandTestCase
@@ -16,3 +17,7 @@ class CindexCommandTest(CommandTestCase):
       max_iters -= 1
     self.assertEquals('', self.view.get_status('YetAnotherCodeSearch'))
     self.assertTrue(os.path.isfile('test_csearchindex'))
+
+  def test_cindex_exists(self):
+    """This test verifies that `cindex` is installed."""
+    self.assertIsNotNone(shutil.which('cindex'))
