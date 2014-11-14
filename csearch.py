@@ -48,8 +48,32 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
                                  None,
                                  functools.partial(self._finish, None))
 
+  def _get_results_view(self):
+    view = next((view for view in self.window.views()
+                if view.name() == 'Code Search Results'), None)
+    if not view:
+      view = self.window.new_file()
+      view.set_name('Code Search Results')
+      view.set_scratch(True)
+      settings = view.settings()
+      settings.set('line_numbers', False)
+      settings.set('gutter', False)
+      settings.set('spell_check', False)
+      view.set_syntax_file(('Packages/YetAnotherCodeSearch/'
+                            'Code Search Results.hidden-tmLanguage'))
+    return view
+
   def _on_search(self, result):
     self._last_search = result
+
+    intro = 'Searching for "{0}"\n\n'.format(result)
+    view = self._get_results_view()
+    view.set_read_only(False)
+    view.run_command('select_all')
+    view.run_command('right_delete')
+    view.run_command('append', {'characters': intro})
+    view.set_read_only(True)
+
     try:
       s = settings.get_project_settings(self.window.project_data())
       _CsearchThread(parser.parse_query(result), self,
@@ -61,13 +85,13 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
   def _finish(self, output, err=None):
     self._is_running = False
     if err:
-      sublime.error_message(str(err))
+      self._print_error(err, output)
       return
     if output is None:
       return
     try:
       query = parser.parse_query(self._last_search)
-      result = 'Searching for "{0}"\n\n'.format(self._last_search)
+      result = ''
       if output:
         matches = parser.parse_search_output(output)
         result += '\n\n'.join((str(f) for f in matches))
@@ -83,21 +107,8 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
       if not query.case:
         flags = sublime.IGNORECASE
 
-      view = next((view for view in self.window.views()
-                  if view.name() == 'Code Search Results'), None)
-      if not view:
-        view = self.window.new_file()
-        view.set_name('Code Search Results')
-        view.set_scratch(True)
-        settings = view.settings()
-        settings.set('line_numbers', False)
-        settings.set('gutter', False)
-        settings.set('spell_check', False)
-        view.set_syntax_file(('Packages/YetAnotherCodeSearch/'
-                              'Code Search Results.hidden-tmLanguage'))
+      view = self._get_results_view()
       view.set_read_only(False)
-      view.run_command('select_all')
-      view.run_command('right_delete')
       view.run_command('append', {'characters': result})
       reg = view.find_all(query.query_re(), flags)
       reg = reg[1:]  # Skip the first match, it's the "title"
@@ -106,7 +117,16 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
       view.set_read_only(True)
       self.window.focus_view(view)
     except Exception as err:
-      sublime.error_message(str(err))
+      self._print_error(err, output)
+
+  def _print_error(self, err, output):
+    if isinstance(err, subprocess.CalledProcessError):
+      output = err.output
+    view = self._get_results_view()
+    msg = '{0}\n\n{1}\n'.format(str(err), output)
+    view.set_read_only(False)
+    view.run_command('append', {'characters': msg})
+    view.set_read_only(True)
 
   def on_finished(self, output, err=None):
     sublime.set_timeout(functools.partial(self._finish, output, err=err))
@@ -143,13 +163,13 @@ class _CsearchThread(threading.Thread):
     cmd.extend(self._search.args())
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
+                            stderr=subprocess.PIPE,
                             env=env, startupinfo=startupinfo)
-    output, unused_err = proc.communicate()
+    output, stderr = proc.communicate()
     retcode = proc.poll()
-    if retcode and output:
+    if retcode and stderr:
       error = subprocess.CalledProcessError(retcode, cmd)
-      error.output = output
+      error.output = stderr
       raise error
     return output.decode('utf-8')
 
