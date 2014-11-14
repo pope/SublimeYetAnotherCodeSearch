@@ -17,7 +17,7 @@ fi
 
 if [ ! -d $ST_PACKAGE_DIR/$PACKAGE ]; then
     echo "Symlinking the package to the Sublime package directory"
-    ln -s $PWD $STP/$PACKAGE
+    ln -s $PWD $ST_PACKAGE_DIR/$PACKAGE
 fi
 
 if [ ! -d $ST_PACKAGE_DIR/UnitTesting ]; then
