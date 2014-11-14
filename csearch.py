@@ -66,14 +66,7 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
   def _on_search(self, result):
     self._last_search = result
 
-    intro = 'Searching for "{0}"\n\n'.format(result)
-    view = self._get_results_view()
-    view.set_read_only(False)
-    view.run_command('select_all')
-    view.run_command('right_delete')
-    view.run_command('append', {'characters': intro})
-    view.set_read_only(True)
-
+    self._write_message('Searching for "{0}"\n\n'.format(result), erase=True)
     try:
       s = settings.get_project_settings(self.window.project_data())
       _CsearchThread(parser.parse_query(result), self,
@@ -87,34 +80,30 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     if err:
       self._print_error(err, output)
       return
-    if output is None:
+
+    if not output:
+      self._write_message('No matches found')
       return
+
     try:
       query = parser.parse_query(self._last_search)
-      result = ''
-      if output:
-        matches = parser.parse_search_output(output)
-        result += '\n\n'.join((str(f) for f in matches))
-        num_files = len(matches)
-        num_matches = functools.reduce(operator.add,
-                                       (len(r.matches) for r in matches))
-        result += '\n\n{0} matches across {1} files'.format(num_matches,
-                                                            num_files)
-      else:
-        result += 'No matches found'
+      matches = parser.parse_search_output(output)
+      result = '\n\n'.join((str(f) for f in matches))
+      num_files = len(matches)
+      num_matches = functools.reduce(operator.add,
+                                     (len(r.matches) for r in matches))
+      result += '\n\n{0} matches across {1} files'.format(num_matches,
+                                                          num_files)
+      view = self._get_results_view()
+      self._write_message(result, view=view)
 
       flags = 0
       if not query.case:
         flags = sublime.IGNORECASE
-
-      view = self._get_results_view()
-      view.set_read_only(False)
-      view.run_command('append', {'characters': result})
       reg = view.find_all(query.query_re(), flags)
       reg = reg[1:]  # Skip the first match, it's the "title"
       view.add_regions('YetAnotherCodeSearch', reg, 'text.csearch', '',
                        sublime.HIDE_ON_MINIMAP | sublime.DRAW_NO_FILL)
-      view.set_read_only(True)
       self.window.focus_view(view)
     except Exception as err:
       self._print_error(err, output)
@@ -124,7 +113,16 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
       output = err.output
     view = self._get_results_view()
     msg = '{0}\n\n{1}\n'.format(str(err), output)
+    self._write_message(msg, view=view)
+    self.window.focus_view(view)
+
+  def _write_message(self, msg, view=None, erase=False):
+    if view is None:
+      view = self._get_results_view()
     view.set_read_only(False)
+    if erase:
+      view.run_command('select_all')
+      view.run_command('right_delete')
     view.run_command('append', {'characters': msg})
     view.set_read_only(True)
 
