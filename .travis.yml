@@ -6,8 +6,8 @@ install:
     - sudo add-apt-repository ppa:webupd8team/sublime-text-3 -y
     - sudo apt-get update
     - sudo apt-get install sublime-text-installer golang -y
-    - go install code.google.com/p/codesearch/cmd/cindex
-    - go install code.google.com/p/codesearch/cmd/csearch
+    - go get code.google.com/p/codesearch/cmd/cindex
+    - go get code.google.com/p/codesearch/cmd/csearch
     - mkdir -p $HOME/.config/sublime-text-3/Packages
     - ln -s $PWD $HOME/.config/sublime-text-3/Packages/YetAnotherCodeSearch
     - git clone --branch 0.4.3 https://github.com/randy3k/UnitTesting $HOME/.config/sublime-text-3/Packages/UnitTesting
