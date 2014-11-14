@@ -8,9 +8,10 @@ import unittest
 class CommandTestCase(unittest.TestCase):
 
   def setUp(self):
+    path = '{0}/YetAnotherCodeSearch'.format(sublime.packages_path())
     self.project_data = {
         'code_search': {'csearchindex': 'test_csearchindex'},
-        'folders': [{'path': '.'}]}
+        'folders': [{'path': path}]}
     sublime.active_window().run_command('new_window')
     self.window = sublime.active_window()
     self.window.set_project_data(self.project_data)
