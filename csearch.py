@@ -96,7 +96,8 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
         view.set_syntax_file(('Packages/YetAnotherCodeSearch/'
                               'Code Search Results.hidden-tmLanguage'))
       view.set_read_only(False)
-      view.run_command('erase_view')
+      view.run_command('select_all')
+      view.run_command('right_delete')
       view.run_command('append', {'characters': result})
       reg = view.find_all(query.query_re(), flags)
       reg = reg[1:]  # Skip the first match, it's the "title"
