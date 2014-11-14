@@ -166,7 +166,7 @@ class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
     line_nums = view.find_by_selector(
         'constant.numeric.line-number.match.csearch')
     i = bisect.bisect(line_nums, line)
-    if not i or not line.contains(line_nums[i]):
+    if not line.contains(line_nums[i]):
       return
     linenum = view.substr(line_nums[i])
 
@@ -179,7 +179,7 @@ class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
     matches = view.get_regions('YetAnotherCodeSearch')
     col = 0
     i = bisect.bisect(matches, line)
-    if i and line.contains(matches[i]):
+    if line.contains(matches[i]):
       col = matches[i].a - line.a - 6  # 6 is the amount of padding
 
     self.window.open_file('{0}:{1}:{2}'.format(filename, linenum, col),
