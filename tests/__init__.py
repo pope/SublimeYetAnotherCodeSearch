@@ -9,8 +9,9 @@ class CommandTestCase(unittest.TestCase):
 
   def setUp(self):
     path = '{0}/YetAnotherCodeSearch'.format(sublime.packages_path())
+    self.index = '{0}/test_csearchindex'.format(path)
     self.project_data = {
-        'code_search': {'csearchindex': 'test_csearchindex'},
+        'code_search': {'csearchindex': self.index},
         'folders': [{'path': path}]}
     sublime.active_window().run_command('new_window')
     self.window = sublime.active_window()
@@ -23,5 +24,5 @@ class CommandTestCase(unittest.TestCase):
     self.window.run_command('close_file')
     self.window.run_command('close_window')
 
-    if os.path.isfile('test_csearchindex'):
-      os.remove('test_csearchindex')
+    if os.path.isfile(self.index):
+      os.remove(self.index)
