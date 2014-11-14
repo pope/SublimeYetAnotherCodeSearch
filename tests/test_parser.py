@@ -61,6 +61,10 @@ class SearchTest(unittest.TestCase):
     self.assertEquals(parser.Search(query=['hello', 'world']).args(),
                       ['(hello|world)'])
 
+  def test_args_with_quoted_string(self):
+    self.assertEquals(parser.Search(query=['"Hello, world"']).args(),
+                      ['"Hello, world"'])
+
 
 class ParseSearchOutputTest(unittest.TestCase):
 
