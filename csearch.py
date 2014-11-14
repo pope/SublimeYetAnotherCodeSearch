@@ -75,44 +75,40 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     except Exception as e:
       self._finish(None, err=e)
 
-  def _finish(self, output, err=None):
+  def _finish(self, output, matches, err=None):
     self._is_running = False
     if err:
       self._print_error(err, output)
       return
 
-    if not output:
-      self._write_message('No matches found')
+    if not matches:
+      self._write_message('No matches found\n')
       return
 
-    try:
-      query = parser.parse_query(self._last_search)
-      matches = parser.parse_search_output(output)
-      result = '\n\n'.join((str(f) for f in matches))
-      num_files = len(matches)
-      num_matches = functools.reduce(operator.add,
-                                     (len(r.matches) for r in matches))
-      result += '\n\n{0} matches across {1} files'.format(num_matches,
-                                                          num_files)
-      view = self._get_results_view()
-      self._write_message(result, view=view)
+    query = parser.parse_query(self._last_search)
+    result = '\n\n'.join((str(f) for f in matches))
+    num_files = len(matches)
+    num_matches = functools.reduce(operator.add,
+                                   (len(r.matches) for r in matches))
+    result += '\n\n{0} matches across {1} files'.format(num_matches,
+                                                        num_files)
+    view = self._get_results_view()
+    self._write_message(result, view=view)
 
-      flags = 0
-      if not query.case:
-        flags = sublime.IGNORECASE
-      reg = view.find_all(query.query_re(), flags)
-      reg = reg[1:]  # Skip the first match, it's the "title"
-      view.add_regions('YetAnotherCodeSearch', reg, 'text.csearch', '',
-                       sublime.HIDE_ON_MINIMAP | sublime.DRAW_NO_FILL)
-      self.window.focus_view(view)
-    except Exception as err:
-      self._print_error(err, output)
+    flags = 0
+    if not query.case:
+      flags = sublime.IGNORECASE
+    reg = view.find_all(query.query_re(), flags)
+    reg = reg[1:]  # Skip the first match, it's the "title"
+    view.add_regions('YetAnotherCodeSearch', reg, 'text.csearch', '',
+                     sublime.HIDE_ON_MINIMAP | sublime.DRAW_NO_FILL)
+    self.window.focus_view(view)
 
   def _print_error(self, err, output):
     if isinstance(err, subprocess.CalledProcessError):
       output = err.output
     view = self._get_results_view()
-    msg = '{0}\n\n{1}\n'.format(str(err), output)
+    msg = '{0}\n\n{1}\n'.format(err, output)
     self._write_message(msg, view=view)
     self.window.focus_view(view)
 
@@ -127,7 +123,14 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     view.set_read_only(True)
 
   def on_finished(self, output, err=None):
-    sublime.set_timeout(functools.partial(self._finish, output, err=err))
+    matches = None
+    if output:
+      try:
+        matches = parser.parse_search_output(output)
+      except Exception as e:
+        err = e
+    sublime.set_timeout(
+        functools.partial(self._finish, output, matches, err=err))
 
 
 class _CsearchThread(threading.Thread):
