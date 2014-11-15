@@ -45,11 +45,9 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     if query:
       self._on_search(query)
       return
-    self.window.show_input_panel('csearch',
-                                 self._last_search,
-                                 self._on_search,
-                                 None,
-                                 functools.partial(self._finish, None, None, cancel=True))
+    self.window.show_input_panel(
+        'csearch', self._last_search, self._on_search, None,
+        functools.partial(self._finish, None, None, cancel=True))
 
   def _get_results_view(self):
     view = next((view for view in self.window.views()
