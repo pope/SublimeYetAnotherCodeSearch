@@ -93,11 +93,11 @@ class ParseSearchOutputTest(unittest.TestCase):
 
   def test_parse_exception(self):
     with self.assertRaises(parser._LexerException):
-      actual = parser.parse_search_output('I am a bad line.')
+      parser.parse_search_output('I am a bad line.')
 
   def test_parse_exception_with_bad_linenum(self):
     with self.assertRaises(parser._LexerException):
-      actual = parser.parse_search_output('a.txt:12bleh:Match')
+      parser.parse_search_output('a.txt:12bleh:Match')
 
 
 class FileResultsTest(unittest.TestCase):

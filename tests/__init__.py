@@ -4,6 +4,7 @@ import os
 import os.path
 import unittest
 
+
 def _get_project_path():
   return os.path.dirname(os.path.realpath(__file__))
 

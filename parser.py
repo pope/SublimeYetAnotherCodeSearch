@@ -1,8 +1,6 @@
-import collections
 from itertools import zip_longest
 import math
 import string
-import textwrap
 
 _EOF = '\0'
 
@@ -156,7 +154,7 @@ class _Lexer(object):
       A list of token tuples, where the first entry is the token type and the
       second value is the text value.
     """
-    self._start= 0
+    self._start = 0
     self._pos = 0
     self._width = 0
     self._tokens = []
@@ -191,11 +189,11 @@ class _Lexer(object):
       tokType: The token type describing the current string.
     """
     self._tokens.append((tokType, self.curstr()))
-    self._start= self._pos
+    self._start = self._pos
 
   def ignore(self):
     """Ignores the current string."""
-    self._start= self._pos
+    self._start = self._pos
 
   def next(self):
     """Moves the cursor to the next character in the string.
@@ -383,8 +381,8 @@ class FileResults(object):
 
   def __eq__(self, other):
     return (isinstance(other, self.__class__) and
-        self.filename == other.filename and
-        self.matches == other.matches)
+            self.filename == other.filename and
+            self.matches == other.matches)
 
   def __ne__(self, other):
     return not self.__eq__(other)

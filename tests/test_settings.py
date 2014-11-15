@@ -10,10 +10,10 @@ class GetProjectSettingsTest(unittest.TestCase):
   def setUp(self):
     self.project_data = {
         'code_search': {
-          'csearchindex': 'csearchindex'},
+            'csearchindex': 'csearchindex'},
         'folders': [
-          {'path': '~/bar'},
-          {'path': '~/foo'}]}
+            {'path': '~/bar'},
+            {'path': '~/foo'}]}
 
   @patch('os.path.abspath', autospec=True)
   @patch('os.path.expanduser', autospec=True)

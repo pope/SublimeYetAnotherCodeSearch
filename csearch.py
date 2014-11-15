@@ -1,4 +1,5 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
 import bisect
 import functools
@@ -205,7 +206,7 @@ class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
     i = bisect.bisect_left(file_names, line)
     if not i:
       return
-    filename = view.substr(file_names[i-1])
+    filename = view.substr(file_names[i - 1])
 
     matches = view.get_regions('YetAnotherCodeSearch')
     col = 0

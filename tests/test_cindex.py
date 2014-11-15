@@ -1,5 +1,3 @@
-import sublime
-
 import os.path
 import shutil
 import time
