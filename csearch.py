@@ -32,16 +32,19 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     self._is_running = False
     self._last_search = ''
 
-  def run(self, quick=False):
+  def run(self, query=None):
     """Runs the search command.
 
     Args:
-      quick: Whether or not to show the found files in the "quick" command
-          window. If False, then results are placed in dedicated buffer.
+      query: An optional search query.
     """
     if self._is_running:
       return
     self._is_running = True
+
+    if query:
+      self._on_search(query)
+      return
     self.window.show_input_panel('csearch',
                                  self._last_search,
                                  self._on_search,
@@ -66,7 +69,10 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
   def _on_search(self, result):
     self._last_search = result
 
-    self._write_message('Searching for "{0}"\n\n'.format(result), erase=True)
+    view = self._get_results_view()
+    self._write_message('Searching for "{0}"\n\n'.format(result),
+                        view=view, erase=True)
+    view.set_status('YetAnotherCodeSearch', 'Searching...')
     try:
       s = settings.get_project_settings(self.window.project_data())
       _CsearchThread(parser.parse_query(result), self,
@@ -77,15 +83,18 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
 
   def _finish(self, output, matches, err=None, cancel=False):
     self._is_running = False
+    if cancel:
+      return
+
+    view = self._get_results_view()
+    view.erase_status('YetAnotherCodeSearch')
+
     if err:
       self._print_error(err, output)
       return
 
-    if cancel:
-      return
-
     if not matches:
-      self._write_message('No matches found\n')
+      self._write_message('No matches found\n', view=view)
       return
 
     query = parser.parse_query(self._last_search)
@@ -93,9 +102,8 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     num_files = len(matches)
     num_matches = functools.reduce(operator.add,
                                    (len(r.matches) for r in matches))
-    result += '\n\n{0} matches across {1} files'.format(num_matches,
-                                                        num_files)
-    view = self._get_results_view()
+    result += '\n\n{0} matches across {1} files\n'.format(num_matches,
+                                                          num_files)
     self._write_message(result, view=view)
 
     flags = 0
@@ -210,4 +218,3 @@ class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
     self.window.open_file('{0}:{1}:{2}'.format(filename, linenum, col),
                           sublime.ENCODED_POSITION)
     # TODO(pope): Consider highlighting the match
-

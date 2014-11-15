@@ -4,18 +4,25 @@ import os
 import os.path
 import unittest
 
+def _get_project_path():
+  return os.path.dirname(os.path.realpath(__file__))
+
+
+def _get_index_path():
+  return '{0}/test_csearchindex'.format(_get_project_path())
+
 
 class CommandTestCase(unittest.TestCase):
 
   def setUp(self):
-    path = '{0}/YetAnotherCodeSearch'.format(sublime.packages_path())
-    self.index = '{0}/test_csearchindex'.format(path)
-    self.project_data = {
+    self.index = _get_index_path()
+    self.project_path = _get_project_path()
+    project_data = {
         'code_search': {'csearchindex': self.index},
-        'folders': [{'path': path}]}
+        'folders': [{'path': self.project_path}]}
     sublime.active_window().run_command('new_window')
     self.window = sublime.active_window()
-    self.window.set_project_data(self.project_data)
+    self.window.set_project_data(project_data)
     self.view = self.window.new_file()
 
   def tearDown(self):
@@ -24,5 +31,8 @@ class CommandTestCase(unittest.TestCase):
     self.window.run_command('close_file')
     self.window.run_command('close_window')
 
-    if os.path.isfile(self.index):
-      os.remove(self.index)
+  @classmethod
+  def tearDownClass(cls):
+    index = _get_index_path()
+    if os.path.isfile(index):
+      os.remove(index)
