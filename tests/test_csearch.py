@@ -50,6 +50,15 @@ class CsearchCommandTest(CommandTestCase):
     actual = results_view.substr(sublime.Region(0, results_view.size()))
     self.assertEquals(expected, actual)
 
+  def test_csearch_go_to_file(self):
+    results_view = self._search(_NEEDLE_IN_HAYSTACK)
+    pt = results_view.text_point(3, 10)  # Line 4, 10 characters in
+    results_view.sel().clear()
+    results_view.sel().add(sublime.Region(pt))
+    self.window.run_command('code_search_results_go_to_file')
+    self.assertEquals('{0}/test_csearch.py'.format(self.project_path),
+                      self.window.active_view().file_name())
+
   def _wait_for_status(self, view):
     max_iters = 10
     while max_iters > 0 and view.get_status('YetAnotherCodeSearch') != '':
