@@ -43,6 +43,9 @@ class ParseQueryTest(unittest.TestCase):
   def test_keyword_looking_value(self):
     self.assertParse(r'foo:bar', query=['foo:bar'])
 
+  def test_parse_with_escape_parens(self):
+    self.assertParse(r'method\(', query=[r'method\('])
+
 
 class SearchTest(unittest.TestCase):
 

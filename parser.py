@@ -33,8 +33,8 @@ def _search_text_state(lex):
         return _search_text_state
       else:
         lex.next()
-    elif lex.accept('\\') and lex.accept(' '):
-      pass
+    elif lex.accept('\\'):
+      lex.next()  # advance what we're escaping.
     else:
       break
   lex.emit('text')
