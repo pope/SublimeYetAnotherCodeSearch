@@ -46,7 +46,7 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
                                  self._last_search,
                                  self._on_search,
                                  None,
-                                 functools.partial(self._finish, None))
+                                 functools.partial(self._finish, None, None, cancel=True))
 
   def _get_results_view(self):
     view = next((view for view in self.window.views()
@@ -75,10 +75,13 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     except Exception as e:
       self._finish(None, err=e)
 
-  def _finish(self, output, matches, err=None):
+  def _finish(self, output, matches, err=None, cancel=False):
     self._is_running = False
     if err:
       self._print_error(err, output)
+      return
+
+    if cancel:
       return
 
     if not matches:
