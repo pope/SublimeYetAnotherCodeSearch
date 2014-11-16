@@ -68,10 +68,9 @@ def get_project_settings(project_data, index_project_folders=False):
             raise Exception(
                 'The index file, {}, does not exist'.format(index_filename))
 
+    if index_project_folders:
         paths_to_index = [os.path.abspath(os.path.expanduser(folder['path']))
                           for folder in project_data['folders']]
-    elif index_project_folders:
-        raise Exception('Cannot index project. csearchindex not specified')
 
     return Settings(path_csearch, path_cindex,
                     index_filename=index_filename,
