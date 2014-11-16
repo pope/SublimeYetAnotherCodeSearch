@@ -26,28 +26,6 @@ anyway. Some things worth highlighting:
 
 TODO. (talk about installing csearch AND this plugin)
 
-## Settings
-
-In case anyone is migrating over from SublimeCodeSearch (like myself), you will
-be pleased to know that the settings and setting names are the same for this
-plugin.
-
-The location of `csearch` and `cindex` can be specified by editing the user-
-specific `YetAnotherCodeSearch.sublime-settings` file. See the default file
-for configuration options. Both are easily found via
-*Preferences > Package Settings > YetAnotherCodeSearch*.
-
-### Project Settings
-
-You can specify an index file to use for the project by editing the project
-(*Project > Edit Project*) and adding the following property to the JSON file.
-
-    "code_search": {
-      "csearchindex": "path/to/csearchindex"
-    }
-
-The location of `codesearchindex` is defined relatively to the project location.
-
 ## Usage
 
 As is with CodeSearch, there are two main steps to using this plugin - indexing
@@ -98,6 +76,28 @@ focus. You can move to any matched line and then press the `enter` key and be
 taken to that file and that match. You can also invoke the Goto Symbol command
 (*Goto > Goto Symbol...*) to get a list of all of the files that match your
 query.
+
+## Settings
+
+In case anyone is migrating over from SublimeCodeSearch (like myself), you will
+be pleased to know that the settings and setting names are the same for this
+plugin.
+
+The location of `csearch` and `cindex` can be specified by editing the user-
+specific `YetAnotherCodeSearch.sublime-settings` file. See the default file
+for configuration options. Both are easily found via
+*Preferences > Package Settings > YetAnotherCodeSearch*.
+
+### Project Settings
+
+You can specify an index file to use for the project by editing the project
+(*Project > Edit Project*) and adding the following property to the JSON file.
+
+    "code_search": {
+      "csearchindex": "path/to/csearchindex"
+    }
+
+The location of `codesearchindex` is defined relatively to the project location.
 
 ## Development
 
