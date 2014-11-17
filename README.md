@@ -3,7 +3,7 @@
 [![Analytics](https://ga-beacon.appspot.com/UA-280328-3/pope/SublimeYetAnotherCodeSearch/README)](https://github.com/igrigorik/ga-beacon)
 [![Build Status](https://travis-ci.org/pope/SublimeYetAnotherCodeSearch.svg?branch=master)](https://travis-ci.org/pope/SublimeYetAnotherCodeSearch)
 
-This is a plugin for [Sublime Text][ST] that works with [CodeSearch][CS] to
+This is a plugin for [Sublime Text 3][ST] that works with [CodeSearch][CS] to
 provide fast searching in a large codebase. This is most useful for large
 projects where a normal Find is just too slow.
 
@@ -22,9 +22,28 @@ anyway. Some things worth highlighting:
   - Can specify case and file restrictions when searching
   - Manage and update the index file for a Sublime project.
 
-## Installation
+## Setup
 
-TODO. (talk about installing csearch AND this plugin)
+### Prerequisite
+
+You will need a [CodeSearch][CS] binary. You can build this by installing [Go][]
+and get the binary.
+
+    go get code.google.com/p/codesearch/cmd/...
+
+### Installation
+
+The easiest way to install the plugin is to simply use [PackageControl][PC].
+Just look for the *YetAnotherCodeSearch* plugin and install.
+
+-or-
+
+You could download/clone the source and place it into your Sublime Text plugin
+directory with the name *YetAnotherCodeSearch*.
+
+    git clone \
+        https://github.com/pope/SublimeYetAnotherCodeSearch.git \
+        YetAnotherCodeSearch
 
 ## Usage
 
@@ -101,8 +120,18 @@ The location of `codesearchindex` is defined relatively to the project location.
 
 ## Development
 
-TODO. (talk about current development and testing)
+Please file an [issue][] if you would like a new enhancement of if you run into
+any bugs. Of course, patches are always welcome :)
+
+### Testing
+
+In order to run the unit tests, please install randy3k's lovely [UnitTesting][]
+Sublime plugin and run the unit tests via that.
 
 [ST]: https://www.sublimetext.com/
 [CS]: https://code.google.com/p/codesearch/
 [SublimeCodeSearch]: https://github.com/whoenig/SublimeCodeSearch
+[Go]: https://golang.org/
+[PC]: https://sublime.wbond.net/
+[issue]: https://github.com/pope/SublimeYetAnotherCodeSearch/issues
+[UnitTesting]: https://github.com/randy3k/UnitTesting
