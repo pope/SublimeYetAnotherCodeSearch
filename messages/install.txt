@@ -1,0 +1,10 @@
+Yet Another Code Search
+=======================
+
+Thank you for installing YetAnotherCodeSearch for Sublime Text!
+
+To use this plugin, please make sure you have the csearch and cindex binaries.
+All commands can be accessed form the Command Palette.
+
+For more information, check out
+https://github.com/pope/SublimeYetAnotherCodeSearch.
