@@ -64,6 +64,7 @@ class CindexCommand(sublime_plugin.WindowCommand, _CindexListener):
         try:
             s = settings.get_project_settings(
                 self.window.project_data(),
+                self.window.project_file_name(),
                 index_project_folders=index_project)
             _CindexListThread(self,
                               path_cindex=s.cindex_path,
@@ -143,6 +144,8 @@ class _CindexListThread(threading.Thread):
             cmd.append('-reset')
             cmd.extend(self._paths_to_index)
         proc = self._get_proc(cmd)
+        overall_start = time.perf_counter()
+        total_count = 0
         start = time.time()
         count = 0
         for line in iter(proc.stdout.readline, b''):
@@ -153,9 +156,13 @@ class _CindexListThread(threading.Thread):
             tick = time.time()
             if tick - start > .1:
                 self._listener.on_files_processed(count)
+                total_count += count
                 count = 0
                 start = tick
+        total_count += count
         self._listener.on_files_processed(count)
+        print('Code Search: indexed {0} files in {1:.3f}s'.format(
+              total_count, time.perf_counter() - overall_start))
         proc.stdout.close()
         retcode = proc.poll()
         if retcode:

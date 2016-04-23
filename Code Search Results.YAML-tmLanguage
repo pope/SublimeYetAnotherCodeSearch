@@ -12,7 +12,7 @@ patterns:
 
 - match: '^ +([0-9]+) '
   captures:
-    '1': {name: constant.numeric.line-number.cearch}
+    '1': {name: constant.numeric.line-number.csearch}
 
 - match: '^ +([0-9]+):'
   captures:

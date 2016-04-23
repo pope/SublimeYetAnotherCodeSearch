@@ -5,6 +5,8 @@ import bisect
 import functools
 import operator
 import os
+import platform
+import re
 import subprocess
 import threading
 
@@ -31,7 +33,7 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
     def __init__(self, *args, **kwargs):
         super(CsearchCommand, self).__init__(*args, **kwargs)
         self._is_running = False
-        self._last_search = ''
+        self._last_search = 'file:* case:yes "'
 
     def run(self, query=None):
         """Runs the search command.
@@ -73,7 +75,8 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
                             view=view, erase=True)
         view.set_status('YetAnotherCodeSearch', 'Searching...')
         try:
-            s = settings.get_project_settings(self.window.project_data())
+            s = settings.get_project_settings(self.window.project_data(),
+                                              self.window.project_file_name())
             _CsearchThread(parser.parse_query(result), self,
                            path_csearch=s.csearch_path,
                            index_filename=s.index_filename).start()
@@ -143,6 +146,23 @@ class CsearchCommand(sublime_plugin.WindowCommand, _CsearchListener):
             functools.partial(self._finish, output, matches, err=err))
 
 
+def fix_windows_output(output):
+    """Normalize file paths in csearch output on windows platform."""
+
+    result = []
+    # replace ntpaths to posix
+    r = re.compile(r"^([^:]*):([^:]*):([^:]*):(.*)$")
+    for line in output.splitlines():
+        m = r.match(line)
+        if m:
+            line = '/{0}{1}:{2}:{3}'.format(m.group(1),
+                                            m.group(2).replace('\\', '/'),
+                                            m.group(3),
+                                            m.group(4))
+        result.append(line)
+    return '\n'.join(result)
+
+
 class _CsearchThread(threading.Thread):
     """Runs the csearch command in a thread."""
 
@@ -182,7 +202,10 @@ class _CsearchThread(threading.Thread):
             error = subprocess.CalledProcessError(retcode, cmd)
             error.output = stderr
             raise error
-        return output.decode('utf-8')
+        u8 = output.decode('utf-8')
+        if platform.system() == 'Windows':
+            return fix_windows_output(u8)
+        return u8
 
 
 class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
@@ -217,3 +240,8 @@ class CodeSearchResultsGoToFileCommand(sublime_plugin.WindowCommand):
         self.window.open_file('{0}:{1}:{2}'.format(filename, linenum, col),
                               sublime.ENCODED_POSITION)
         # TODO(pope): Consider highlighting the match
+
+
+class DoubleClickCallback(sublime_plugin.WindowCommand):
+    def run(self):
+        self.window.run_command("code_search_results_go_to_file")

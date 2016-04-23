@@ -51,16 +51,17 @@ def _search_quote_state(lex):
     Returns:
         The next lex state.
     """
-    # TODO(pope): Handle the error case when we try to leave without seeing a
-    # closing quote.
     while True:
         lex.acceptRunIgnoring('\\"')
         c = lex.next()
         if c == '\\':
             lex.next()  # Advance over whatever is being escaped.
-        else:
+        elif c == '"':
+            lex.emit('quote')
             break
-    lex.emit('quote')
+        else:  # end
+            lex.emitValue('quote', lex.curstr() + '"')
+            break
     return _search_text_state
 
 
@@ -184,12 +185,22 @@ class _Lexer(object):
         return self._pos > self._start
 
     def emit(self, tokType):
-        """Emit appends the current string to the list of tokens.
+        """Emit appends the current string to the list of tokens and advances
+        position.
 
         Args:
             tokType: The token type describing the current string.
         """
-        self._tokens.append((tokType, self.curstr()))
+        self.emitValue(tokType, self.curstr())
+
+    def emitValue(self, tokType, value):
+        """Emit appends value to the list of tokens and advances position.
+
+        Args:
+            tokType: The token type describing the current string.
+            value: value of token.
+        """
+        self._tokens.append((tokType, value))
         self._start = self._pos
 
     def ignore(self):
@@ -343,8 +354,10 @@ def parse_query(text):
     try:
         while True:
             (tokType, tokValue) = next(tokens)
-            if tokType in ('text', 'quote'):
+            if tokType == 'text':
                 res.query.append(tokValue)
+            elif tokType == 'quote':
+                res.query.append(tokValue[1:-1])
             elif tokType == 'flag':
                 flag = tokValue.lower()
                 (ignore_type, value) = next(tokens)
@@ -354,7 +367,8 @@ def parse_query(text):
                     else:
                         res.case = True
                 elif flag == 'file':
-                    res.file = value
+                    if value != '*':
+                        res.file = value
                 else:
                     raise Exception('Unsupported flag value: {0}'.format(flag))
             else:

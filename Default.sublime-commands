@@ -4,11 +4,11 @@
     "command": "csearch"
   },
   {
-    "caption": "Code Search Index",
+    "caption": "Code Search: Refresh Index",
     "command": "cindex"
   },
   {
-    "caption": "Code Search Index Project",
+    "caption": "Code Search: Create New Index from Project Settings",
     "command": "cindex",
     "args": {
       "index_project": true
