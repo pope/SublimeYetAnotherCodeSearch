@@ -235,7 +235,8 @@ class _Lexer(object):
         return False
 
     def acceptRun(self, text):
-        """Advances the cursor forward while the next character is in the string.
+        """Advances the cursor forward while the next character is within the
+        string.
 
         Args:
             text: A string of expected characters to see next.
