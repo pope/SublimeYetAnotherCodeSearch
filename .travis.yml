@@ -1,6 +1,10 @@
 language: python
 python:
     - "3.3"
+env:
+    global:
+        - GOPATH=$HOME/go
+        - PATH=$GOPATH/bin:$PATH
 
 install:
     - sudo add-apt-repository ppa:webupd8team/sublime-text-3 -y
