@@ -29,7 +29,7 @@ anyway. Some things worth highlighting:
 You will need a [CodeSearch][CS] binary. You can build this by installing [Go][]
 and get the binary.
 
-    go get code.google.com/p/codesearch/cmd/...
+    go get github.com/google/codesearch/cmd/...
 
 ### Installation
 
