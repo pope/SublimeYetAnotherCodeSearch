@@ -14,7 +14,8 @@ class CindexCommandTest(CommandTestCase):
         self.window.run_command('cindex', {'index_project': True})
         max_iters = 10
         while (max_iters > 0 and
-               self.view.get_status('YetAnotherCodeSearch') != ''):
+               (self.view.get_status('YetAnotherCodeSearch') != '' or
+                not os.path.isfile(self.index))):
             time.sleep(0.1)
             max_iters -= 1
         self.assertEquals('', self.view.get_status('YetAnotherCodeSearch'))

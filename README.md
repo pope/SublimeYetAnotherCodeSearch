@@ -107,6 +107,9 @@ specific `YetAnotherCodeSearch.sublime-settings` file. See the default file
 for configuration options. Both are easily found via
 *Preferences > Package Settings > YetAnotherCodeSearch*.
 
+To add keyboard shortcut open Preferences > Key Bindings - User and add
+something like `{ "keys": ["alt+ctrl+shift+f"], "command": "csearch" }`.
+
 ### Project Settings
 
 You can specify an index file to use for the project by editing the project

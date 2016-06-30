@@ -23,16 +23,14 @@ class ParseQueryTest(unittest.TestCase):
 
     def test_quoted_string(self):
         self.assertParse(r'"Hello, \"World\"" printf',
-                         query=[r'"Hello, \"World\""', 'printf'])
+                         query=[r'Hello, \"World\"', 'printf'])
 
-    # TODO(pope): Make this give a warning. At least this proves we don't loop
-    # infinitely for this value.
     def test_quoted_string_without_closing_quote(self):
-        self.assertParse(r'"Hello', query=['"Hello'])
+        self.assertParse(r'"Hello', query=['Hello'])
 
     def test_with_file(self):
         self.assertParse(r'"Hello, World" file:.*py$',
-                         query=[r'"Hello, World"'], file='.*py$')
+                         query=[r'Hello, World'], file='.*py$')
 
     def test_case_insensitive(self):
         self.assertParse(r'someVariableName case:no',
@@ -66,8 +64,8 @@ class SearchTest(unittest.TestCase):
                           ['(hello|world)'])
 
     def test_args_with_quoted_string(self):
-        self.assertEquals(parser.Search(query=['"Hello, world"']).args(),
-                          ['"Hello, world"'])
+        self.assertEquals(parser.Search(query=['Hello, world']).args(),
+                          ['Hello, world'])
 
 
 class ParseSearchOutputTest(unittest.TestCase):
